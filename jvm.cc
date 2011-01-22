@@ -141,7 +141,7 @@ void execOpcode(int &PC, Stack &stack, vector<Opcode*> &program, map<unsigned in
                 } else {
                     int arg2 = stack.Pop();
 
-                    if (arg2 == 0){
+                    if (arg1 == 0){
                         fprintf(stderr, "error: division by zero\n");
                         stack.Push(arg2);
                         stack.Push(arg1);

@@ -1,0 +1,32 @@
+            const 42
+            const 6
+
+            store 0
+            store 1
+
+chkDiv0:    load 0
+            ifeq no
+
+chk0:       load 1
+            ifeq yes
+
+            load 1
+            load 0
+
+            div
+
+            load 0
+
+            mul
+
+            load 1
+
+            sub
+
+            ifeq yes
+
+no:         const 0
+            goto done
+
+yes:        const 1
+done:       p

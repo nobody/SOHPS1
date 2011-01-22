@@ -171,7 +171,7 @@ void runOpcode(char* opcode, Stack &stack, map<unsigned int, int> &vars){
             } else {
                 int arg2 = stack.Pop();
 
-                if (arg2 == 0){
+                if (arg1 == 0){
                     fprintf(stderr, "error: division by zero\n");
                     stack.Push(arg2);
                     stack.Push(arg1);
