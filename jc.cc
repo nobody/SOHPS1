@@ -21,13 +21,14 @@ void runOpcode(char* opcode, Stack &stack, map<unsigned int, int> &vars){
         // push constant arg onto stack
         int arg = 0;
         ss >> arg;
-        if (ss.fail() && !ss.eof()){
+        if (ss.fail()){
             ss.clear();
             char arg[25];
+            memset(arg, 0, 25);
             ss >> arg;
-#ifdef DEBUG
-            printf("Error reading argument: %s.  Not a number.\n", arg);
-#endif
+
+            printf("Error reading augument: \"%s\".  Not a number.\n", arg);
+
         } else {
             stack.Push(arg);
 
@@ -48,21 +49,25 @@ void runOpcode(char* opcode, Stack &stack, map<unsigned int, int> &vars){
 
         int arg = 0;
         ss >> arg;
-        if (ss.fail() && !ss.eof()){
+        if (ss.fail()){
             ss.clear();
             char arg[25];
+            memset(arg, 0, 25);
             ss >> arg;
-            printf("Error reading argument: %s.  Not a number.\n", arg);
+            printf("Error reading augument: \"%s\".  Not a number.\n", arg);
         } else {
-            if (stack.Empty()){
-                fprintf(stderr, "error: stack empty\n");
+            if (arg < 0) {
+                fprintf(stderr, "error: variable index should be non-negative\n");
             } else {
-                int val = stack.Pop();
-                vars[arg] = val;
-
+                if (stack.Empty()){
+                    fprintf(stderr, "error: stack empty\n");
+                } else {
+                    int val = stack.Pop();
+                    vars[arg] = val;
 #ifdef DEBUG
-                printf("Set var %d to value %d\n", arg, val);
+                    printf("Set var %d to value %d\n", arg, val);
 #endif
+                }
             }
         }
 
@@ -71,20 +76,24 @@ void runOpcode(char* opcode, Stack &stack, map<unsigned int, int> &vars){
 
         int arg = 0;
         ss >> arg;
-        if (ss.fail() && !ss.eof()){
+        if (ss.fail()){
             ss.clear();
             char arg[25];
+            memset(arg, 0, 25);
             ss >> arg;
-            printf("Error reading argument: %s.  Not a number.\n", arg);
+            printf("Error reading augument: \"%s\".  Not a number.\n", arg);
         } else {
-            if (stack.Full()){
-                fprintf(stderr, "error: stack full\n");
+            if (arg < 0){
+                fprintf(stderr, "error: variable index should be non-negative\n");
             } else {
-                stack.Push(vars[arg]);
-
+                if (stack.Full()){
+                    fprintf(stderr, "error: stack full\n");
+                } else {
+                    stack.Push(vars[arg]);
 #ifdef DEBUG
-                printf("Pushed var %d (value %d) onto stack\n", arg, vars[arg]);
+                    printf("Pushed var %d (value %d) onto stack\n", arg, vars[arg]);
 #endif
+                }
             }
         }
 
