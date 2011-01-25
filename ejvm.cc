@@ -46,7 +46,7 @@ void execOpcode(int &PC, Stack &stack, vector<Opcode*> &program, map<unsigned in
             } else {
                 stack.Push(op.intArg1);
 #ifdef DEBUG
-                printf("Pushed constant \"%d\" onto stack\n", arg);
+                printf("Pushed constant \"%d\" onto stack\n", op.intArg1);
 #endif
             }
             break;
@@ -235,11 +235,11 @@ void execOpcode(int &PC, Stack &stack, vector<Opcode*> &program, map<unsigned in
                     if (pop2 < pop1){
                         PC = symbols[op.strArg]->lineNum;
 #ifdef DEBUG
-                printf("[IFLT] Top of stack was %d. Jump to label %s (line %d)\n", popped, op.strArg.c_str(), symbols[op.strArg]->lineNum);
+                printf("[IFLT] Top of stack was %d %d. Jump to label %s (line %d)\n", pop2, pop1, op.strArg.c_str(), symbols[op.strArg]->lineNum);
 #endif
                     } else {
 #ifdef DEBUG
-                printf("[IFLT] Top of stack was %d. Do NOT jump to label %s (line %d)\n", popped, op.strArg.c_str(), symbols[op.strArg]->lineNum);
+                printf("[IFLT] Top of stack was %d %d. Do NOT jump to label %s (line %d)\n", pop2, pop1, op.strArg.c_str(), symbols[op.strArg]->lineNum);
 #endif
                     }
                 }
@@ -258,11 +258,11 @@ void execOpcode(int &PC, Stack &stack, vector<Opcode*> &program, map<unsigned in
                     if (pop2 > pop1){
                         PC = symbols[op.strArg]->lineNum;
 #ifdef DEBUG
-                printf("[IFLT] Top of stack was %d. Jump to label %s (line %d)\n", popped, op.strArg.c_str(), symbols[op.strArg]->lineNum);
+                printf("[IFLT] Top of stack was %d %d. Jump to label %s (line %d)\n", pop2, pop1, op.strArg.c_str(), symbols[op.strArg]->lineNum);
 #endif
                     } else {
 #ifdef DEBUG
-                printf("[IFLT] Top of stack was %d. Do NOT jump to label %s (line %d)\n", popped, op.strArg.c_str(), symbols[op.strArg]->lineNum);
+                printf("[IFLT] Top of stack was %d %d. Do NOT jump to label %s (line %d)\n", pop2, pop1, op.strArg.c_str(), symbols[op.strArg]->lineNum);
 #endif
                     }
                 }
