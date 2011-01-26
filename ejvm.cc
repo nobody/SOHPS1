@@ -34,8 +34,20 @@ struct Opcode{
 };
 
 
+void saveLocalVar(int var, int val, Stack &stack, int FP){
+#ifdef DEBUG
+    printf("    Saving %d to stack loc %d\n", val, FP + var + 1);
+#endif
+    stack.Set_element(FP + var + 1, val);
+}
+int getLocalVar(int var, Stack &stack, int FP){
+#ifdef DEBUG
+    printf("    Getting %d from stack loc %d\n", stack.Get_element(FP + var + 1), FP + var + 1);
+#endif
+    return stack.Get_element(FP + var + 1);
+}
 
-void execOpcode(int &PC, Stack &stack, vector<Opcode*> &program, map<unsigned int, int> &vars, map<string, symEntry*> &symbols){
+bool execOpcode(int &PC, int &FP, Stack &stack, vector<Opcode*> &program, map<string, symEntry*> &symbols){
 
     Opcode op = *(program[PC]);
     PC++;
@@ -65,19 +77,19 @@ void execOpcode(int &PC, Stack &stack, vector<Opcode*> &program, map<unsigned in
                 fprintf(stderr, "error: stack empty\n");
             } else {
                 int val = stack.Pop();
-                vars[op.intArg1] = val;
+                saveLocalVar(op.intArg1, val, stack, FP);
 #ifdef DEBUG
                 printf("Set var %d to value %d\n", op.intArg1, val);
 #endif
             }
-            break;
+             break;
         case C_LOAD:
             if (stack.Full()){
                 fprintf(stderr, "error: stack full\n");
             } else {
-                stack.Push(vars[op.intArg1]);
+                stack.Push(getLocalVar(op.intArg1, stack, FP));
 #ifdef DEBUG
-                printf("Pushed var %d (value %d) onto stack\n", op.intArg1, vars[op.intArg1]);
+                printf("Pushed var %d (value %d) onto stack\n", op.intArg1, getLocalVar(op.intArg1, stack, FP));
 #endif
             }
             break;
@@ -176,10 +188,13 @@ void execOpcode(int &PC, Stack &stack, vector<Opcode*> &program, map<unsigned in
             break;
         case C_INC:
             // increment local variable arg1 by arg2
-            vars[op.intArg1] += op.intArg2;
+            {
+                int tmp = getLocalVar(op.intArg1, stack, FP);
+                saveLocalVar(op.intArg1, tmp + op.intArg2, stack, FP);
 #ifdef DEBUG
-            printf("Increment var %d by %d. New Val %d\n", op.intArg1, op.intArg2, vars[op.intArg1]);
+                printf("Increment var %d by %d. New Val %d\n", op.intArg1, op.intArg2, tmp + op.intArg2);
 #endif
+            }
             break;
         case C_GOTO:
             PC = symbols[op.strArg]->lineNum;
@@ -268,9 +283,75 @@ void execOpcode(int &PC, Stack &stack, vector<Opcode*> &program, map<unsigned in
                 }
             }
 
+        case C_INVOKE:
+            printf("Invoking method: %s\n", op.strArg.c_str());
+
+            printf("  Pushing return addr: %d\n", PC);
+            stack.Push(PC);
+
+            printf("  Pushing old FP: %d.  New FP: %d\n", FP, stack.Get_top());
+            stack.Push(FP);
+            FP = stack.Get_top() - 1;
+            printf ("    Val at FP(%d) == %d\n", FP, stack.Get_element(FP));
+
+            printf("  Allocating space for %d variables\n", symbols[op.strArg]->limit);
+            for (int i = 0; i < symbols[op.strArg]->limit; ++i){
+                stack.Push(0);
+            }
+            
+            PC = symbols[op.strArg]->lineNum;
+
+            break;
+        case C_RETURN:
+            {
+                printf("Returning\n");
+                if (FP == 0)
+                    return false;
+
+                // TODO: Check that this is actually a variable...
+                printf( "  Removing stack frame from FP(%d) to SP(%d)\n", FP, stack.Get_top());
+                int ret = 0;
+                for (int i = stack.Get_top(); i > FP+1; --i){
+                    if (stack.Empty() == false){
+                        ret = stack.Pop();
+                        printf ("    i = %d, ret = %d\n", i, ret);
+                    }
+                }
+                printf("  Saving ret value %d from %d\n", ret, stack.Get_top() + 1);
+
+                if (stack.Empty() == false){
+                    FP = stack.Pop();
+                    printf("  Restoring FP to %d\n", FP);
+                    if (stack.Empty() == false){
+                        PC = stack.Pop();
+                        printf("  Jumping to ret addr %d\n", PC);
+                    }
+                }
+
+                stack.Push(ret);
+            }
+            break;
+        case C_FETCH:
+            {
+                if (FP + op.intArg2 >= 0 && FP + op.intArg2 < stack.Get_top()){
+
+                    printf("Fetching variable at %d\n", op.intArg2);
+
+                    int val = stack.Get_element(FP + op.intArg2);
+                    printf ("  Got value %d\n", val);
+
+                    saveLocalVar(op.intArg1, val, stack, FP);
+
+                } else {
+                    fprintf(stderr, "error: stack location invalid\n");
+                }
+            }
+            break;
         default:
             printf("Executing unknown opcode %d\n", op.type);
     }            
+
+    return true;
 }
 
 
@@ -596,7 +677,6 @@ int main(){
 
     // Init stack and variable map
     Stack stack(100);
-    map<unsigned int, int> vars;
     vector<Opcode*> program;
     map<string, symEntry*> symbols;
 
@@ -707,13 +787,22 @@ int main(){
 
     printf("\n\n\nBeginning Execution. Output below:\n");
 
-    int PC = 0;
+    // lookup the beginning of "main"
+    symEntry* main = symbols["main"];
+    if (main == NULL){
+        fprintf(stderr, "No main method found.\n");
+        return 1;
+    }
+    int PC = main->lineNum;
+    int FP = 0;
 
     // Execute program
     while(PC < program.size() && PC >= 0) { 
         // While we are still in the program...
 
-        execOpcode(PC, stack, program, vars, symbols);
+        if (execOpcode(PC, FP, stack, program, symbols) == false){
+            return 0;
+        }
     }
     printf("stack size: %d\n", stack.Get_top());
 }
