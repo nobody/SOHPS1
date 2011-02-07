@@ -33,6 +33,16 @@ struct Opcode{
     Opcode() : type(C_INVALID), label(), intArg1(0), intArg2(0), strArg() {}
 };
 
+void printStack(Stack &stack){
+/*
+    printf("Printing the stack.\n");
+    printf("  stack size: %d\n", stack.Get_top());
+    for(int i = stack.Get_top()-1; i >= 0; --i){
+        printf("  %d\n", stack.Get_element(i));
+    }
+    printf("Done printing the stack.\n");
+*/
+}
 
 void saveLocalVar(int var, int val, Stack &stack, int FP){
 #ifdef DEBUG
@@ -282,63 +292,68 @@ bool execOpcode(int &PC, int &FP, Stack &stack, vector<Opcode*> &program, map<st
                     }
                 }
             }
+            break;
 
         case C_INVOKE:
-            printf("Invoking method: %s\n", op.strArg.c_str());
-
-            printf("  Pushing return addr: %d\n", PC);
+            //printf("Invoking method: %s\n", op.strArg.c_str());
+            printStack(stack);
+            //printf("  Pushing return addr: %d\n", PC);
             stack.Push(PC);
 
-            printf("  Pushing old FP: %d.  New FP: %d\n", FP, stack.Get_top());
+            //printf("  Pushing old FP: %d.  New FP: %d\n", FP, stack.Get_top());
             stack.Push(FP);
             FP = stack.Get_top() - 1;
-            printf ("    Val at FP(%d) == %d\n", FP, stack.Get_element(FP));
+            //printf ("    Val at FP(%d) == %d\n", FP, stack.Get_element(FP));
 
-            printf("  Allocating space for %d variables\n", symbols[op.strArg]->limit);
+            //printf("  Allocating space for %d variables\n", symbols[op.strArg]->limit);
             for (int i = 0; i < symbols[op.strArg]->limit; ++i){
                 stack.Push(0);
             }
             
             PC = symbols[op.strArg]->lineNum;
+            printStack(stack);
 
             break;
         case C_RETURN:
             {
-                printf("Returning\n");
+                //printf("Returning\n");
+                printStack(stack);
                 if (FP == 0)
                     return false;
 
                 // TODO: Check that this is actually a variable...
-                printf( "  Removing stack frame from FP(%d) to SP(%d)\n", FP, stack.Get_top());
+                //printf( "  Removing stack frame from FP(%d) to SP(%d)\n", FP, stack.Get_top());
                 int ret = 0;
                 for (int i = stack.Get_top(); i > FP+1; --i){
                     if (stack.Empty() == false){
                         ret = stack.Pop();
-                        printf ("    i = %d, ret = %d\n", i, ret);
+                        //printf ("    i = %d, ret = %d\n", i, ret);
                     }
                 }
-                printf("  Saving ret value %d from %d\n", ret, stack.Get_top() + 1);
+                //printf("  Saving ret value %d from %d\n", ret, stack.Get_top() + 1);
 
                 if (stack.Empty() == false){
                     FP = stack.Pop();
-                    printf("  Restoring FP to %d\n", FP);
+                    //printf("  Restoring FP to %d\n", FP);
                     if (stack.Empty() == false){
                         PC = stack.Pop();
-                        printf("  Jumping to ret addr %d\n", PC);
+                        //printf("  Jumping to ret addr %d\n", PC);
                     }
                 }
 
                 stack.Push(ret);
+
+                printStack(stack);
             }
             break;
         case C_FETCH:
             {
                 if (FP + op.intArg2 >= 0 && FP + op.intArg2 < stack.Get_top()){
 
-                    printf("Fetching variable at %d\n", op.intArg2);
+                    //printf("Fetching variable at %d\n", op.intArg2);
 
                     int val = stack.Get_element(FP + op.intArg2);
-                    printf ("  Got value %d\n", val);
+                    //printf ("  Got value %d\n", val);
 
                     saveLocalVar(op.intArg1, val, stack, FP);
 
@@ -349,6 +364,7 @@ bool execOpcode(int &PC, int &FP, Stack &stack, vector<Opcode*> &program, map<st
             break;
         default:
             printf("Executing unknown opcode %d\n", op.type);
+            printStack(stack);
     }            
 
     return true;
@@ -793,16 +809,22 @@ int main(){
         fprintf(stderr, "No main method found.\n");
         return 1;
     }
+    // init vm
     int PC = main->lineNum;
     int FP = 0;
+    //printf("  Allocating space for %d variables\n", main->limit);
+    for (int i = 0; i <= main->limit; ++i){
+        stack.Push(0);
+    }
 
     // Execute program
     while(PC < program.size() && PC >= 0) { 
         // While we are still in the program...
 
         if (execOpcode(PC, FP, stack, program, symbols) == false){
+            printStack(stack);
             return 0;
         }
     }
-    printf("stack size: %d\n", stack.Get_top());
+    printStack(stack);
 }
