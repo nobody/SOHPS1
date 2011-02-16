@@ -8,6 +8,8 @@
 
 #include "stack.h"
 
+#define MAX_COMM_LEN 100
+
 using namespace std;
 
 
@@ -271,8 +273,8 @@ bool addline(int idx, char* line, vector<Opcode*> &program, map<string, int> &sy
     Opcode* opcode = new Opcode;
 
     stringstream ss(line);
-    char command[50];
-    memset(command, 0, 50);
+    char command[MAX_COMM_LEN];
+    memset(command, 0, MAX_COMM_LEN);
 
     ss >> command;
 
@@ -290,7 +292,7 @@ bool addline(int idx, char* line, vector<Opcode*> &program, map<string, int> &sy
         symbols[opcode->label] = idx;
         printf("Added label to symbol table with value %d\n", symbols[opcode->label]);
 
-        memset(command, 0, 50);
+        memset(command, 0, MAX_COMM_LEN);
         ss >> command;
     }
 
@@ -494,16 +496,16 @@ MALFORMED:
 int main(){
 
     // Init stack and variable map
-    Stack stack(100);
+    Stack stack(50000);
     map<unsigned int, int> vars;
     vector<Opcode*> program;
     map<string, int> symbols;
 
     while(!cin.eof()){
 
-        char* command = new char[50];
-        memset(command, 0, 50);
-        cin.getline(command, 50);
+        char* command = new char[MAX_COMM_LEN];
+        memset(command, 0, MAX_COMM_LEN);
+        cin.getline(command, MAX_COMM_LEN);
 
         // add line to stored program
         if (addline(program.size(), command, program, symbols) == false)

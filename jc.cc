@@ -6,13 +6,15 @@
 
 #include "stack.h"
 
+#define MAX_COMM_LEN 100
+
 using namespace std;
 
 void runOpcode(char* opcode, Stack &stack, map<unsigned int, int> &vars){
 
     stringstream ss;
-    char command[50];
-    memset(command, 0, 50);
+    char command[MAX_COMM_LEN];
+    memset(command, 0, MAX_COMM_LEN);
 
     ss << opcode;
     ss >> command;
@@ -204,14 +206,14 @@ void runOpcode(char* opcode, Stack &stack, map<unsigned int, int> &vars){
 int main(){
 
     // Init stack and variable map
-    Stack stack(100);
+    Stack stack(50000);
     map<unsigned int, int> vars;
 
     while(!cin.eof()){
 
-        char command[50];
-        memset(command, 0, 50);
-        cin.getline(command, 50);
+        char command[MAX_COMM_LEN];
+        memset(command, 0, MAX_COMM_LEN);
+        cin.getline(command, MAX_COMM_LEN);
 
         runOpcode(command, stack, vars);
 

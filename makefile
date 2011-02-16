@@ -10,7 +10,7 @@
 
 # This lets you define a generic compile for .cc files
 
-CC=g++
+CC=g++ -g
 
 .SUFFIXES: .cc .o
 
@@ -39,3 +39,13 @@ jvm.o: stack.h
 ejvm.o: stack.h
 
 
+clean: cleanjc cleanjvm cleanejvm
+
+cleanjc:
+	rm -f jc jc.o
+
+cleanjvm:
+	rm -f jvm jvm.o
+
+cleanejvm:
+	rm -f ejvm ejvm.o

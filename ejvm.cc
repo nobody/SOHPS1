@@ -8,6 +8,8 @@
 
 #include "stack.h"
 
+#define MAX_COMM_LEN 100
+
 using namespace std;
 
 
@@ -316,7 +318,7 @@ bool execOpcode(int &PC, int &FP, Stack &stack, vector<Opcode*> &program, map<st
             break;
         case C_RETURN:
             {
-                //printf("Returning\n");
+               //printf("Returning\n");
                 printStack(stack);
                 if (FP == 0)
                     return false;
@@ -376,8 +378,8 @@ bool addline(int idx, char* line, vector<Opcode*> &program, map<string, symEntry
     Opcode* opcode = new Opcode;
 
     stringstream ss(line);
-    char command[50];
-    memset(command, 0, 50);
+    char command[MAX_COMM_LEN];
+    memset(command, 0, MAX_COMM_LEN);
 
     ss >> command;
 
@@ -396,7 +398,7 @@ bool addline(int idx, char* line, vector<Opcode*> &program, map<string, symEntry
         symbols[opcode->label] = new symEntry(idx);
         printf("Added label to symbol table with value %d\n", symbols[opcode->label]->lineNum);
 
-        memset(command, 0, 50);
+        memset(command, 0, MAX_COMM_LEN);
         ss >> command;
     }
 
@@ -412,11 +414,11 @@ bool addline(int idx, char* line, vector<Opcode*> &program, map<string, symEntry
             return false;
         } else {
             // read next line and get limit
-            memset(line, 0, 50);
-            cin.getline(line, 50);
+            memset(line, 0, MAX_COMM_LEN);
+            cin.getline(line, MAX_COMM_LEN);
             stringstream sslimit(line);
 
-            memset(command, 0, 50);
+            memset(command, 0, MAX_COMM_LEN);
             sslimit >> command;
 
             if (strcmp(".limit", command) == 0){
@@ -692,15 +694,15 @@ MALFORMED:
 int main(){
 
     // Init stack and variable map
-    Stack stack(100);
+    Stack stack(50000);
     vector<Opcode*> program;
     map<string, symEntry*> symbols;
 
     while(!cin.eof()){
 
-        char* command = new char[50];
-        memset(command, 0, 50);
-        cin.getline(command, 50);
+        char* command = new char[MAX_COMM_LEN];
+        memset(command, 0, MAX_COMM_LEN);
+        cin.getline(command, MAX_COMM_LEN);
 
         // add line to stored program
         if (addline(program.size(), command, program, symbols) == false)
