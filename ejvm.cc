@@ -805,7 +805,7 @@ int main(){
 
     // lookup the beginning of "main"
     symEntry* main = symbols["main"];
-    if (main == NULL){
+    if (main == NULL || main->limit < 0){
         fprintf(stderr, "No main method found.\n");
         return 1;
     }
