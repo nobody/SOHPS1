@@ -1,0 +1,30 @@
+Patrick Mealey (plm051000@utdallas.edu) and Joseph Gebhard (jag054100@utdallas.edu)
+
+To compile the programs, run make.
+
+
+To use any of the 3 parts:
+    - Run the program
+        Then input the opcodes one per line.
+    - Run program < scriptfile
+        scriptfile must contain opcodes for the machine to run. 
+
+
+jc reads opcodes and immediately executes them if possible.
+On errors, the machine will attempt to continue, but warn the user of the problem.
+
+jvm will parse the entire input before beginning execution. 
+As it reads in the program, when a line containing a label is seen, an entry will be added to a map which stores the "address" of that instruction.
+For each line read, an Opcode struct is created that indicates the type and stores the arguments (if any).
+A Program Counter is initialized to 0, and the program executes in a loop while the PC is pointing within the program.
+
+ejvm adds support for methods to jvm.
+Additional parsing is added for the new commands and the method declarations.
+The symbol table now maps method/label names to a struct containing the "address" and the variable limit for methods (labels are given a limit of -1).
+The machine initialization is modified to set PC to the "address" of the first instruction of the main method.
+
+In all 3 parts, input parsing is done using stringstreams. This allows for ignoring of whitespace within a line easily. The implementation does, however require that lines containing labels have some form of whitespace between the label: and the opcode.
+
+Since labels and methods are stored in the same symbol table, there cannot be both a method and a label with the same name. 
+
+The stack size for all parts is set to 50000.  This allows for significant recursion in the ejvm. The fib.jvm program included here successfully calculated the 40th fibonacci number.
