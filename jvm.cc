@@ -261,6 +261,7 @@ void execOpcode(int &PC, Stack &stack, vector<Opcode*> &program, map<unsigned in
                     }
                 }
             }
+            break;
 
         default:
             printf("Executing unknown opcode %d\n", op.type);

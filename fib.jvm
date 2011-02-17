@@ -1,0 +1,44 @@
+        .method fib
+        .limit 2
+      
+        fetch 1 -2
+        load 1
+      
+        ifeq zero
+
+        const 1
+        load 1
+        iflt rec
+        const 1
+        goto ret
+      
+zero:   const 0
+        goto ret
+      
+rec:    inc 1 -1
+        load 1
+
+        invoke fib
+        store 0
+        pop
+        
+        inc 1 -1
+        load 1
+        invoke fib
+        
+        load 0
+        add
+        store 0
+        
+        pop
+        return
+ret:    store 0
+        return
+      
+      
+        .method main
+        .limit 0
+        const 17
+        invoke fib
+        p
+        return
