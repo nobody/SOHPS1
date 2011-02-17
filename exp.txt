@@ -1,2 +1,0 @@
-Here put an explanation of anything special that we should know, 
-and what script.sh does.  Say why that tests the code.
