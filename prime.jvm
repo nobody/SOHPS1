@@ -34,8 +34,12 @@ done:       store 0
 
 .method main
 .limit 2
-            const 197
+            const 0
             store 1
+
+            load 1
+            const 3
+            iflt special
 
             const 1
             store 0
@@ -56,5 +60,23 @@ loop:       inc 0 1
             return
 
 fail:       const 0
+            p
+            return
+
+special:    load 1
+            const 1
+            sub
+            ifeq zero
+
+            load 1
+            const 2
+            sub
+            ifeq one
+
+zero:       const 0
+            p
+            return
+
+one:        const 1
             p
             return
