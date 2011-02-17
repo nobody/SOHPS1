@@ -288,10 +288,10 @@ bool addline(int idx, char* line, vector<Opcode*> &program, map<string, int> &sy
 
         opcode->label = opcode->label.substr(0, opcode->label.find_first_of(':'));
 
-        printf("Found label %s\n", opcode->label.c_str());
+        //printf("Found label %s\n", opcode->label.c_str());
 
         symbols[opcode->label] = idx;
-        printf("Added label to symbol table with value %d\n", symbols[opcode->label]);
+        //printf("Added label to symbol table with value %d\n", symbols[opcode->label]);
 
         memset(command, 0, MAX_COMM_LEN);
         ss >> command;
@@ -512,7 +512,7 @@ int main(){
         if (addline(program.size(), command, program, symbols) == false)
             return 1;
     }
-
+/*
     vector<Opcode*>::iterator it;
     int ctr = 0;
 
@@ -584,7 +584,7 @@ int main(){
 
 
     printf("\n\n\nBeginning Execution. Output below:\n");
-
+*/
     int PC = 0;
 
     // Execute program
@@ -593,5 +593,5 @@ int main(){
 
         execOpcode(PC, stack, program, vars, symbols);
     }
-    printf("stack size: %d\n", stack.Get_top());
+    //printf("stack size: %d\n", stack.Get_top());
 }

@@ -392,11 +392,11 @@ bool addline(int idx, char* line, vector<Opcode*> &program, map<string, symEntry
 
         opcode->label = opcode->label.substr(0, opcode->label.find_first_of(':'));
 
-        printf("Found label %s\n", opcode->label.c_str());
+        //printf("Found label %s\n", opcode->label.c_str());
 
-        printf("Adding label #1\n");
+        //printf("Adding label #1\n");
         symbols[opcode->label] = new symEntry(idx);
-        printf("Added label to symbol table with value %d\n", symbols[opcode->label]->lineNum);
+        //printf("Added label to symbol table with value %d\n", symbols[opcode->label]->lineNum);
 
         memset(command, 0, MAX_COMM_LEN);
         ss >> command;
@@ -709,6 +709,7 @@ int main(){
             return 1;
     }
 
+/*
     vector<Opcode*>::iterator it;
     int ctr = 0;
 
@@ -804,6 +805,7 @@ int main(){
 
 
     printf("\n\n\nBeginning Execution. Output below:\n");
+*/
 
     // lookup the beginning of "main"
     symEntry* main = symbols["main"];
